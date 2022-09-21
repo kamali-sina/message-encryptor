@@ -1,12 +1,12 @@
 import os
-from cryptography.fernet import Fernet
+import cryptocode
 from sys import argv
 
 ENCRYPT = ["-e", "--encrypt"]
 DECRYPT = ["-d", "--decrypt"]
 MAKEKEY = ["-mk", "--make-key"]
 KEYNAME = "key.txt"
-
+ENCODING = "UTF-8"
 
 class Encyptor():
     def __init__(self, argv) -> None:
@@ -23,7 +23,7 @@ class Encyptor():
     def init_key(self):
         if (not os.path.exists(KEYNAME)):
             self.exit_no_key()
-        with open (KEYNAME, "rb") as file:
+        with open (KEYNAME, "r") as file:
             self.key = file.read()
 
     def exit_with_help(self):
@@ -53,30 +53,22 @@ class Encyptor():
             print(result)
     
     def make_key(self):
-        key = Fernet.generate_key()
+        key = "somerandomkey"
         with open(KEYNAME, "wb") as file:
             file.write(key)
         print(f"key has been generated in {KEYNAME}")
     
     def encrypt(self):
-        with open(self.path, "rb") as file:
+        with open(self.path, "r") as file:
             data = file.read()
-            try:
-                cipher_suite = Fernet(self.key)
-            except:
-                self.exit_invalid_key()
-            encoded_text = cipher_suite.encrypt(data)
-            self.print_result(encoded_text.decode("UTF-8"))
+            encoded_text = cryptocode.encrypt(data, self.key)
+            self.print_result(encoded_text)
     
     def decrypt(self):
-        with open(argv[2], "rb") as file:
+        with open(argv[2], "r") as file:
             data = file.read()
-            try:
-                cipher_suite = Fernet(self.key)
-            except:
-                self.exit_invalid_key()
-            decoded_text = cipher_suite.decrypt(data)
-            self.print_result(decoded_text.decode("UTF-8"))
+            decoded_text = cryptocode.decrypt(data, self.key)
+            self.print_result(decoded_text)
     
     def run(self):
         if (self.command in MAKEKEY):
